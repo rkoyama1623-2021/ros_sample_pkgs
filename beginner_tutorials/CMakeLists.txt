@@ -129,6 +129,8 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(hello src/hello.cpp)
+add_executable(talker src/talker.cpp)
+add_executable(listener src/listener.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -136,6 +138,8 @@ add_executable(hello src/hello.cpp)
 
 ## Specify libraries to link a library or executable target against
 target_link_libraries(hello ${catkin_LIBRARIES})# specify the libraries to be linked to hello
+target_link_libraries(talker ${catkin_LIBRARIES})
+target_link_libraries(listener ${catkin_LIBRARIES})
 
 #############
 ## Install ##
