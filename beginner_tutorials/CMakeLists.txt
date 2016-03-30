@@ -129,8 +129,8 @@ include_directories(
 
 ## Declare a C++ executable
 add_executable(hello src/hello.cpp)
-add_executable(talker src/talker.cpp)
-add_executable(listener src/listener.cpp)
+add_executable(talker src/pub_sub_test/talker.cpp)
+add_executable(listener src/pub_sub_test/listener.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
