@@ -129,16 +129,16 @@ include_directories(
 # add_dependencies(my_pcl_ros_tutorial ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Declare a C++ executable
-# add_executable(my_pcl_ros_tutorial_node src/my_pcl_ros_tutorial_node.cpp)
+ add_executable(example src/example.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
 # add_dependencies(my_pcl_ros_tutorial_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-# target_link_libraries(my_pcl_ros_tutorial_node
-#   ${catkin_LIBRARIES}
-# )
+target_link_libraries(example ${catkin_LIBRARIES}
+  ${catkin_LIBRARIES}
+)
 
 #############
 ## Install ##
