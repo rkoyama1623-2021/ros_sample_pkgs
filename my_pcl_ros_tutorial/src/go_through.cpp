@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <sensor_msgs/PointCloud2.h>
 // PCL specific includes
-#include <pcl/ros/conversions.h>
+#include <pcl/conversions.h>// in stead of <pcl/ros/conversions.h>
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 
@@ -13,6 +13,7 @@ void cloud_cb (const sensor_msgs::PointCloud2ConstPtr& input)
 
   sensor_msgs::PointCloud2 output;
   // Publish the data
+  output = *input;
   pub.publish (output);
 }
 
