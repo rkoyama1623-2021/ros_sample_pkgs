@@ -133,6 +133,7 @@ add_executable(talker src/pub_sub_test/talker.cpp)
 add_executable(listener src/pub_sub_test/listener.cpp)
 add_executable(add_two_ints_server src/service_test/add_two_ints_server.cpp)
 add_executable(add_two_ints_client src/service_test/add_two_ints_client.cpp)
+add_executable(integration src/integration.cpp)
 
 ## Add cmake target dependencies of the executable
 ## same as for the library above
@@ -144,6 +145,7 @@ target_link_libraries(talker ${catkin_LIBRARIES})
 target_link_libraries(listener ${catkin_LIBRARIES})
 target_link_libraries(add_two_ints_server ${catkin_LIBRARIES})
 target_link_libraries(add_two_ints_client ${catkin_LIBRARIES})
+target_link_libraries(integration ${catkin_LIBRARIES} m gsl gslcblas)
 
 #############
 ## Install ##
