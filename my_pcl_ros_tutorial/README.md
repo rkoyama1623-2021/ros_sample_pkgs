@@ -22,7 +22,7 @@ roslaunch my_pcl_ros_tutorial trass_detection.launch
 
 Second, check the results.
 ```
-rosrun rviz rviz -d trass_detection.rviz
+rosrun rviz rviz -d $(rospack find my_pcl_ros_tutorial)/config/trass_detection.rviz
 ```
 You'll find that trass is detected as blue bounding box as follows:
 ![detect_trass](materials/detect_trass.png)
