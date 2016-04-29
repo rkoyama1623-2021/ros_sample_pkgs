@@ -150,7 +150,7 @@
 
   <!-- rviz -->
   <group if="$(arg RUN_RVIZ)">
-    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find my_pcl_ros_tutorial)/config/tf_transform_cloud_sample.rviz" />
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find my_pcl_ros_tutorial)/config/trass_detection.rviz" />
   </group>
 
 </launch>
