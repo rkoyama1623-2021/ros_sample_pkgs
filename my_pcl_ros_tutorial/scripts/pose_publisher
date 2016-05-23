@@ -1,0 +1,62 @@
+#! /usr/bin/env python
+
+import rospy
+import numpy as np
+
+# dynamic reconfigure
+from dynamic_reconfigure.server import Server
+from my_pcl_ros_tutorial.cfg import poseConfig
+
+# generate quaternion
+import tf.transformations
+
+# msgs
+from geometry_msgs.msg import PoseStamped
+
+class pose_publisher :
+    def __init__(self):
+        self.pub=rospy.Publisher('out', PoseStamped, queue_size=10)
+        rospy.init_node('pose_publisher', anonymous=True)
+        self.r = rospy.Rate(1)
+        self.seq=0
+        self.params={ 'x':0, 'y':0, 'z':0, 'roll':0, 'pitch':0, 'yaw':0, 'frame_id':"hoge" }
+        self.srv = Server(poseConfig, self.callback)
+    def publish (self,msg):
+        rospy.loginfo(msg)
+        rospy.loginfo(msg)
+        self.pub.publish(msg)
+    def generateMsg(self):
+        msgOut=PoseStamped()
+        msgOut.header.stamp=rospy.Time.now()
+        msgOut.header.seq=self.seq
+        msgOut.header.frame_id=self.param['frame_id']
+        self.seq+=1
+        msgOut.pose.position.x=self.param['x']
+        msgOut.pose.position.y=self.param['y']
+        msgOut.pose.position.z=self.param['z']
+
+        r=np.radians(self.param['roll'])
+        p=np.radians(self.param['pitch'])
+        y=np.radians(self.param['yaw'])
+
+        q=tf.transformations.quaternion_from_euler(r,p,y)
+
+        msgOut.pose.orientation.x=q[0]
+        msgOut.pose.orientation.y=q[1]
+        msgOut.pose.orientation.z=q[2]
+        msgOut.pose.orientation.w=q[3]
+        return msgOut
+    def publish_loop (self):
+        while not rospy.is_shutdown():
+            msgOut=self.generateMsg()
+            self.publish(msgOut)
+            self.r.sleep()
+    def callback(self,config,lovel):
+        self.param=config
+        msgOut=self.generateMsg()
+        self.publish(msgOut)
+        return config
+
+if __name__ == '__main__':
+    p=pose_publisher()
+    p.publish_loop()

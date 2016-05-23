@@ -1,0 +1,23 @@
+<launch>
+  <arg name="RUN_RVIZ" default="true" />
+
+  <node name="pose_publisher" pkg="my_pcl_ros_tutorial" type="pose_publisher">
+    <remap from="out" to="pcd_pose"/>
+    <rosparam>
+      frame_id: base_link
+    </rosparam>
+  </node>
+  <!-- publish pcd data as /pcl_source -->
+  <node name="pcl_data_publisher" pkg="jsk_pcl_ros" type="pcd_reader_with_pose">
+    <rosparam>
+      pcd_file: /home/koyama/ros/indigo/src/my_ros_pkg/ros_study/my_pcl_ros_tutorial/data/table_scene_lms400.pcd
+    </rosparam>
+    <remap from="~input" to="pcd_pose"/>
+    <remap from="~output" to="pcl_source"/>
+  </node>
+  <node name="rat_reconfigure" pkg="rqt_reconfigure" type="rqt_reconfigure"/>
+
+  <group if="$(arg RUN_RVIZ)">
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find my_pcl_ros_tutorial)/config/table_scene_lms400_with_pose.rviz"/>
+  </group>
+</launch>
