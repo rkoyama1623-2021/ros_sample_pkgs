@@ -11,7 +11,7 @@ find_package(catkin REQUIRED COMPONENTS
   std_msgs
 )
 
-## System dependencies are found with CMake's conventions
+## System dependncies are found with CMake's conventions
 # find_package(Boost REQUIRED COMPONENTS system)
 
 
@@ -86,10 +86,10 @@ find_package(catkin REQUIRED COMPONENTS
 ##     and list every .cfg file to be processed
 
 ## Generate dynamic reconfigure parameters in the 'cfg' folder
-# generate_dynamic_reconfigure_options(
-#   cfg/DynReconf1.cfg
-#   cfg/DynReconf2.cfg
-# )
+generate_dynamic_reconfigure_options(
+  cfg/pose.cfg
+)
+#add_dependencies(sample_node ${PROJECT_NAME}_gencfg)
 
 ###################################
 ## catkin specific configuration ##
@@ -118,6 +118,7 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
+
 ## Declare a C++ library
 # add_library(my_pcl_ros_tutorial
 #   src/${PROJECT_NAME}/my_pcl_ros_tutorial.cpp
@@ -136,12 +137,9 @@ include_directories(
 # add_dependencies(my_pcl_ros_tutorial_node ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 ## Specify libraries to link a library or executable target against
-target_link_libraries(go_through
-  ${catkin_LIBRARIES}
-)
-target_link_libraries(extracting_indices
-  ${catkin_LIBRARIES}
-)
+target_link_libraries(go_through ${catkin_LIBRARIES})
+target_link_libraries(extracting_indices ${catkin_LIBRARIES})
+
 
 #############
 ## Install ##
