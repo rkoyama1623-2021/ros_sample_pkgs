@@ -1,0 +1,25 @@
+<launch>
+  <arg name="RUN_RVIZ" default="true" />
+
+
+  <group if="$(arg RUN_RVIZ)">
+    <node name="rviz" pkg="rviz" type="rviz" args="-d $(find jsk_visualization_tutorial)/config/foot_step_visualization.rviz"/>
+  </group>
+
+
+
+  <!-- <arg name="RUN_RVIZ" default="true" /> -->
+
+  <!-- publish pcd data as /pcl_source -->
+  <!-- <node name="pcl_data_publisher" pkg="pcl_ros" type="pcd_to_pointcloud" args="$(find my_pcl_ros_tutorial)/data/table_scene_lms400.pcd 1"> -->
+  <!--   <remap from="cloud_pcd" to="pcl_source"/> -->
+  <!-- </node> -->
+  <!-- output /pcl_source as /output -->
+  <!-- <node name="through_node" pkg="my_pcl_ros_tutorial" type="go_through" output="screen"> -->
+  <!--   <remap from="input" to="pcl_source"/> -->
+  <!-- </node> -->
+
+
+
+
+</launch>
