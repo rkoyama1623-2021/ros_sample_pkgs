@@ -1,0 +1,156 @@
+<launch>
+  <arg name="manager" default="tf_transform_cloud_sample"/>
+  <arg name="RUN_RVIZ" default="false"/>
+  <arg name="PCD_FILE" default="$(find euslib)/demo/koyama/pcl/1448115440662811.pcd"/>
+  <!-- <arg name="PCD_FILE" default="$(find my_pcl_ros_tutorial)/data/table_scene_lms400.pcd"/> -->
+
+  <arg name="LASER_FLAME_ID" default="base_link" /> 
+  <!-- almost same as organized_multiplane_segmentation -->
+  <arg name="BASE_FRAME_ID" default="base_link" />
+  <arg name="RUN_SELF_FILTER" default="false"/>
+  <arg name="SELF_FILTER_PARAM" default="$(find jsk_pr2_startup)/jsk_pr2_sensors/tilt_self_filter.yaml" />
+  <arg name="JOINT_STATIC_FILTER" default="false" />
+  <arg name="ICP_REGISTRATION" default="false" />
+  <arg name="PUBLISH_BOX_TF" default="false" />
+  <arg name="ESTIMATE_OCCLUSION" default="false" />
+  <arg name="HANDLE_ESTIMATOR" default="false" />
+  <arg name="MACHINE" default="localhost"/>
+  <arg name="SAVE_SELECTED_CLOUD" default="false" />
+
+
+  <!-- manager for nodelet -->
+  <node pkg="nodelet" type="nodelet" name="$(arg manager)"
+        args="manager"
+        output="screen"/>
+  <!-- pcl source -->
+  <node pkg="pcl_ros" type="pcd_to_pointcloud" name="cloud_publisher" args="$(arg PCD_FILE) 1">
+    <remap from="cloud_pcd" to="cloud_source"/>
+  </node>
+  <!-- voxel grid filter -->
+  <node pkg="nodelet" type="nodelet"
+        name="voxelgrid"
+        args="load pcl/VoxelGrid $(arg manager)"
+        output="screen">
+    <remap from="~input" to="cloud_source"/>
+    <rosparam>
+      filter_limit_min: -10.0
+      filter_limit_max: 10.0
+      leaf_size: 0.02
+    </rosparam>
+  </node>
+  <!-- tf_transform_cloud -->
+  <node pkg="nodelet" type="nodelet"
+        name="tf_transform_cloud"
+        args="load jsk_pcl/TfTransformCloud $(arg manager)"
+        output="screen">
+    <remap from="~input" to="voxelgrid/output" />
+    <remap from="~output" to="tf_transform_cloud/output_transformed" />
+    <rosparam>
+      target_frame_id: "base_link"
+    </rosparam>
+  </node>
+  <!-- relay -->
+  <node pkg="nodelet" type="nodelet" name="input_relay"
+        args="load jsk_topic_tools/Relay $(arg manager)">
+    <remap from="~input" to="tf_transform_cloud/output_transformed" />
+  </node>
+
+  <!-- NormalEstimationOMP -->
+  <node pkg="nodelet" type="nodelet"
+        args="load jsk_pcl/NormalEstimationOMP $(arg manager)"
+        name="laser_normal_estimation">
+    <remap from="~input" to="input_relay/output" />
+    <rosparam>
+      radius_search: 0
+      k_search: 40
+      # 0, => ANN, 1 => FLANN, 2 => Organized
+      spatial_locator: 1
+    </rosparam>
+  </node>
+
+  <!-- RegionGrowingMultiplePlaneSegmentation -->
+  <node pkg="nodelet" type="nodelet" name="multi_plane_estimate"
+        args="load jsk_pcl/RegionGrowingMultiplePlaneSegmentation $(arg manager)" >
+    <remap from="~input" to="input_relay/output" />
+    <remap from="~input_normal" to="laser_normal_estimation/output" />
+    <remap from="~output/clustering_result" to="~output"/>
+    <rosparam>
+      # cluster_tolerance: 0.3
+      max_curvature: 0.2
+      distance_threshold : 1.5
+      angular_threshold : 0.1
+      min_size : 200
+    </rosparam>
+  </node>
+  <!-- polygon_relay -->
+  <node pkg="nodelet" type="nodelet" name="polygon_relay"
+        args="load jsk_topic_tools/Relay $(arg manager)">
+    <remap from="~input" to="multi_plane_estimate/output/polygons" />
+    <remap from="~output" to="multi_plane_estimate/output_refined_polygon" />
+  </node>
+  <!-- coefficient relay -->
+  <node pkg="nodelet" type="nodelet" name="coefficients_relay"
+        args="load jsk_topic_tools/Relay $(arg manager)">
+    <remap from="~input" to="multi_plane_estimate/output/coefficients" />
+    <remap from="~output" to="multi_plane_estimate/output_refined_coefficients" />
+  </node>
+  <!-- color -->
+  <node pkg="nodelet" type="nodelet" name="colorize_error"
+        args="load jsk_pcl/ColorizeDistanceFromPlane $(arg manager)">
+    <remap from="~input" to="input_relay/output"/>
+    <remap from="~input_indices" to="multi_plane_estimate/output_refined"/>
+    <remap from="~input_coefficients" to="multi_plane_estimate/output_refined_coefficients"/>
+    <remap from="~input_polygons" to="/multi_plane_estimate/output_refined_polygon"/>
+  </node>
+
+  <!-- plane extraction -->
+  <node pkg="nodelet" type="nodelet"
+        name="plane_extraction"
+        args="load jsk_pcl/MultiPlaneExtraction $(arg manager)"
+        output="screen">
+    <remap from="~input" to="input_relay/output" />
+    <remap from="~indices" to="/multi_plane_estimate/output" />
+    <remap from="~input_polygons" to="/multi_plane_estimate/output_refined_polygon" />
+    <remap from="~input_coefficients" to="/multi_plane_estimate/output_refined_coefficients" />
+  </node>
+
+  <!-- euclieian -->
+  <node pkg="nodelet" type="nodelet" name="euclidean_clustering"
+        args="load jsk_pcl/EuclideanClustering /$(arg manager)" output="screen">
+    <remap from="~input" to="/plane_extraction/output" />
+    <remap from="~output" to="/euclidean_clustering/output_throttle" />
+    <rosparam>
+      tolerance: 0.06
+      min_size: 200
+      max_size: 30000
+    </rosparam>
+  </node>
+
+  <!-- cluster decomposer final -->
+  <node pkg="nodelet" type="nodelet"
+        name="cluster_decomposer_final"
+        args="load jsk_pcl/ClusterPointIndicesDecomposer /$(arg manager)"
+        output="screen">
+    <remap from="~input" to="/plane_extraction/output" />
+    <remap from="~target" to="/euclidean_clustering/output_throttle" />
+    <remap from="~align_planes" to="/multi_plane_estimate/output_refined_polygon" />
+    <remap from="~align_planes_coefficients"
+           to="/multi_plane_estimate/output_refined_coefficients" />
+    <rosparam>
+      align_boxes: true
+      use_pca: true
+      publish_clouds: false
+      publish_tf: false
+    </rosparam>
+    <rosparam>
+      publish_tf: false
+    </rosparam>
+  </node>
+
+
+  <!-- rviz -->
+  <group if="$(arg RUN_RVIZ)">
+    <node pkg="rviz" type="rviz" name="rviz" args="-d $(find my_pcl_ros_tutorial)/config/trass_detection.rviz" />
+  </group>
+
+</launch>
