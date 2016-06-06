@@ -1,7 +1,7 @@
 <launch>
   <arg name="USE_JOY" default="false" />
-  <arg name="GLOBAL_FRAME" default="map" />
-  <arg name="USE_PERCEPTION" default="true"/>
+  <arg name="GLOBAL_FRAME" default="odom" />
+  <arg name="USE_PERCEPTION" default="false"/>
   <arg name="USE_SIMPLE_FOOTSTEP_CONTROLLER" default="true" />
   <!-- <node pkg="dynamic_tf_publisher" type="tf_publish.py" name="dynamic_tf_publisher" -->
   <!--       output="log"> -->
