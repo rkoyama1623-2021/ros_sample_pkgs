@@ -1,26 +1,24 @@
+# jsk_interactive_marker/sample_display_robot_state.launch
+```xml
+<launch>
+  <include file="$(find jaxon_ros_bridge)/launch/JAXON_RED_set_robot_description.launch" />
+  <node pkg="jsk_interactive_marker" type="semantic_robot_state_generator.py" name="semantic_robot_state_generator" />
+  <node pkg="jsk_interactive_marker" type="sample-display-robot-state.l"
+        name="sample_display_robot_state" />
+  <node pkg="rviz" type="rviz" name="rviz"
+        args="-d $(find jsk_interactive_marker)/config/display_robot_state.rviz" />
+</launch>
+```
+
+
+
+
+
+
 # jsk_interactive_marker/footstep_marker
-
 ## parameters for robot
-### jaxon.yaml
-```
-# jaxon.yaml
-footstep_margin: 0.2
-# coordinate system
-lfoot_frame_id: LLEG_LINK5
-rfoot_frame_id: RLEG_LINK5
-# offset link coordinate -> center of foot
-lfoot_offset: [0.03, 0.01, -0.105, 0, 0, 0, 1]
-rfoot_offset: [0.03, -0.01, -0.105, 0, 0, 0, 1]
-# offset link coordinate -> end coords
-lfoot_endcoords_offset: [0.035589, 0.01, -0.105, 0, 0, 0, 1]
-rfoot_endcoords_offset: [0.035589, -0.01, -0.105, 0, 0, 0, 1]
-lleg_vertices: [[-0.100445, -0.055992], [-0.100445, 0.075992], [0.133242, 0.075992], [0.133242, -0.055992]]
-rleg_vertices: [[-0.100445, -0.075992], [-0.100445, 0.055992], [0.133242, 0.055992], [0.133242, -0.075992]]
-```
-
-
-
-```
+jsk_footstep_planner/launch/optimistic_footstep_planner.launch
+```xml
 <rosparam command="load" file="$(find jsk_footstep_controller)/config/$(env ROBOT).yaml" />
 <remap from="project_footprint" to="/footstep_planner/project_footprint_with_local_search" />
 <remap from="/footstep_controller" to="simple_footstep_controller" if="$(arg USE_SIMPLE_FOOTSTEP_CONTROLLER)"/>
@@ -39,4 +37,26 @@ foot_size_z: 0.0001
 frame_id: $(arg GLOBAL_FRAME)
 </rosparam>
 ```
+
+
+### jsk_footstep_controller/config/jaxon.yaml
+```yaml
+# jaxon.yaml
+footstep_margin: 0.2
+# coordinate system
+lfoot_frame_id: LLEG_LINK5
+rfoot_frame_id: RLEG_LINK5
+# offset link coordinate -> center of foot
+lfoot_offset: [0.03, 0.01, -0.105, 0, 0, 0, 1]
+rfoot_offset: [0.03, -0.01, -0.105, 0, 0, 0, 1]
+# offset link coordinate -> end coords
+lfoot_endcoords_offset: [0.035589, 0.01, -0.105, 0, 0, 0, 1]
+rfoot_endcoords_offset: [0.035589, -0.01, -0.105, 0, 0, 0, 1]
+lleg_vertices: [[-0.100445, -0.055992], [-0.100445, 0.075992], [0.133242, 0.075992], [0.133242, -0.055992]]
+rleg_vertices: [[-0.100445, -0.075992], [-0.100445, 0.055992], [0.133242, 0.055992], [0.133242, -0.075992]]
+```
+
+
+
+
 
