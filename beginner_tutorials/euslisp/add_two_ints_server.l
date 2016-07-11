@@ -2,7 +2,7 @@
 ;;;
 ;;; euslisp version of ros_tutorials/rospy_tutorials/005_add_two_ints
 ;;;
-(ros::load-ros-manifest "roseus")
+(ros::load-ros-manifest "beginner_tutorials")
 
 ;;;
 (defun add-two-ints (req)
@@ -15,6 +15,6 @@
 ;;;
 ;;;
 (ros::roseus "add_two_ints_server")
-(ros::advertise-service "add_two_ints" roseus::AddTwoInts #'add-two-ints)
+(ros::advertise-service "add_two_ints" beginner_tutorials::AddTwoInts #'add-two-ints)
 (do-until-key
  (ros::spin-once))
