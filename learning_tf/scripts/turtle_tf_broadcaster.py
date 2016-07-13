@@ -21,7 +21,7 @@ if __name__ == '__main__':
     except:
         turtlename='turtle1'
     rospy.Subscriber('/%s/pose' % turtlename,
-                     turtlesim.msg.Pose,
-                     handle_turtle_pose,
-                     turtlename)
+                     turtlesim.msg.Pose,# msg type
+                     handle_turtle_pose,# callback function
+                     turtlename)# additional args for callback function
     rospy.spin()
